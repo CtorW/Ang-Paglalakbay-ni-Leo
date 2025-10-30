@@ -194,6 +194,10 @@ body.touch-device .cursor-outline {
         margin: auto;
     }
 
+    .nav-btn {
+        display: none;
+    }
+
     .page,
     .mobile-page {
         position: absolute;
