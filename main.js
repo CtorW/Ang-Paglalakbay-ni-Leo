@@ -26,13 +26,14 @@ document.addEventListener('DOMContentLoaded', () => {
     function goPrevPageDesktop() { if (isFlipping || currentSheet <= 0) return; isFlipping = true; currentSheet--; const pageToUnflip = desktopPages[currentSheet]; pageToUnflip.style.zIndex = numSheets + 1; pageToUnflip.classList.remove('flipped'); if (currentSheet === 0) book.classList.remove('open'); if (currentSheet === numSheets - 1) book.classList.replace('closed-at-end', 'open'); playFlipSound(); updateDesktopUI(); setTimeout(() => { isFlipping = false; pageToUnflip.style.zIndex = numSheets - currentSheet; updateDesktopUI(); }, 1200); }
 
     function createMobileBook() { book.innerHTML = ''; mobilePages = []; pagesData.forEach((src) => { const page = document.createElement('div'); page.classList.add('mobile-page'); const img = document.createElement('img'); img.src = src; page.appendChild(img); book.appendChild(page); mobilePages.push(page); }); mobilePages[0].classList.add('active'); }
-    function updateMobileUI() { pageIndicator.textContent = `Page ${currentPageMobile + 1} of ${pagesData.length}`; prevBtn.disabled = currentPageMobile === 0 || isFlipping; nextBtn.disabled = currentPageMobile === pagesData.length - 1 || isFlipping; }
+    function updateMobileUI() { prevBtn.disabled = currentPageMobile === 0 || isFlipping; nextBtn.disabled = currentPageMobile === pagesData.length - 1 || isFlipping; }
     function goNextPageMobile() { if (isFlipping || currentPageMobile >= pagesData.length - 1) return; isFlipping = true; const outgoingPage = mobilePages[currentPageMobile]; const incomingPage = mobilePages[currentPageMobile + 1]; playFlipSound(); outgoingPage.classList.add('flip-out'); incomingPage.classList.add('active', 'flip-in'); setTimeout(() => { outgoingPage.classList.remove('active', 'flip-out'); incomingPage.classList.remove('flip-in'); isFlipping = false; updateMobileUI(); }, 1000); currentPageMobile++; updateMobileUI(); }
     function goPrevPageMobile() { if (isFlipping || currentPageMobile <= 0) return; isFlipping = true; const outgoingPage = mobilePages[currentPageMobile]; const incomingPage = mobilePages[currentPageMobile - 1]; playFlipSound(); outgoingPage.classList.add('flip-out-prev'); incomingPage.classList.add('active', 'flip-in-prev'); setTimeout(() => { outgoingPage.classList.remove('active', 'flip-out-prev'); incomingPage.classList.remove('flip-in-prev'); isFlipping = false; updateMobileUI(); }, 1000); currentPageMobile--; updateMobileUI(); }
 
     function initialize() {
-        if (isTouchDevice()) document.body.classList.add('touch-device');
-        else {
+        if (isTouchDevice()) {
+            document.body.classList.add('touch-device');
+        } else {
             const cursorDot = document.querySelector('.cursor-dot'); const cursorOutline = document.querySelector('.cursor-outline'); let targetX = 0, targetY = 0, outlineX = 0, outlineY = 0;
             window.addEventListener('mousemove', e => { targetX = e.clientX; targetY = e.clientY; });
             const animateCursor = () => { outlineX += (targetX - outlineX) * 0.1; outlineY += (targetY - outlineY) * 0.1; cursorDot.style.transform = `translate(-50%, -50%) translate3d(${targetX}px, ${targetY}px, 0)`; cursorOutline.style.transform = `translate(-50%, -50%) translate3d(${outlineX}px, ${outlineY}px, 0)`; requestAnimationFrame(animateCursor); };
@@ -45,17 +46,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
         prevBtn.addEventListener('click', goPrevPage);
         nextBtn.addEventListener('click', goNextPage);
-        const eventType = isTouchDevice() ? 'touchend' : 'click';
-        book.addEventListener(eventType, e => {
-            if (isFlipping) return;
-            const bookRect = book.getBoundingClientRect();
-            const clickX = (e.changedTouches ? e.changedTouches[0].clientX : e.clientX) - bookRect.left;
-            if (!isMobileView && book.classList.contains('open') || isMobileView) {
-                if (clickX < bookRect.width / 2) goPrevPage(); else goNextPage();
-            } else if (!isMobileView) {
-                if (currentSheet === 0) goNextPage(); else if (currentSheet === numSheets) goPrevPage();
-            }
-        });
 
         window.addEventListener('resize', () => {
             const newIsMobile = window.innerWidth <= MOBILE_BREAKPOINT;
