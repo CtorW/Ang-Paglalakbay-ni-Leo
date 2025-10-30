@@ -276,6 +276,7 @@ body.touch-device .cursor-outline {
 
     .flipbook-container {
         order: -1;
+        gap: 0;
     }
 
     .social-links {
@@ -285,7 +286,11 @@ body.touch-device .cursor-outline {
         width: 100%;
         bottom: auto;
         left: auto;
-        padding: 10px 0;
+        padding: 15px 0 0 0;
+    }
+
+    .controls {
+        display: none;
     }
 }
 
